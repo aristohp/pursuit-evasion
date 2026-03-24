@@ -8,6 +8,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.colors
 
 # Grid dimensions
 ROWS = 10
@@ -24,15 +25,22 @@ walls = [(0,0),(0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(0,7),(0,8),(0,9),
          (7,0),(7,6),(7,7),(7,9),(8,0),(8,2),(8,9),(9,2),(9,9),(9,3),
          (9,4),(9,5),(9,6),(9,7),(9,8),(9,9)
          ]
+
+# Create walls
 for wall in walls:
     row, col = wall
     grid[row][col] = 1
 
+grid[1][1] = 2 # pursuer
+grid[8][8] = 3 # evader
+
+# Colours
+colours = ["white","#203354","red","green"]
+cmap = matplotlib.colors.ListedColormap(colours)
 
 # Draw the grid
 fig, ax = plt.subplots()
-ax.imshow(grid, cmap="Blues", vmin = 0, vmax = 1)
-
+ax.imshow(grid, cmap=cmap, vmin = 0, vmax = 3)
 
 # Grid lines
 for x in range(COLUMNS + 1):
