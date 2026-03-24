@@ -15,7 +15,11 @@ COLUMNS = 10
 
 # Create an empty grid (0 = free cell)
 grid = np.zeros((ROWS, COLUMNS))
-grid[2][3] = 1
+for i in range(10):
+    random_row = np.random.randint(10)
+    random_col = np.random.randint(10)
+    grid[random_row][random_col] = 1
+
 # Draw the grid
 fig, ax = plt.subplots()
 ax.imshow(grid, cmap="Blues", vmin = 0, vmax = 1)
