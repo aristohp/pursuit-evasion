@@ -9,6 +9,39 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.colors
+import random as r
+
+class Grid:
+    def __init__(self, rows: int, cols: int, walls: list[tuple]) -> None:
+        self.rows = rows
+        self.cols = cols
+        self._walls = set(walls)
+    
+    def get_legal_move(self, position: tuple) -> list[tuple]:
+        x, y = position
+        possible_moves = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+        legal_move = []
+        for move in possible_moves:
+            c_x, c_y = move
+            if move not in self._walls:
+                if 0 <= c_x <= self.rows - 1 and 0 <= c_y <= self.cols - 1:
+                    legal_move.append(move)
+                    
+        return legal_move
+    
+
+class Agent:
+    def __init__(self, position: tuple, speed: int):
+        self.position = position
+        self.speed = speed
+    
+    def _manhattan(self, pos1: tuple, other_pos: tuple):
+        distance = abs(pos1[0] - other_pos[0]) + abs(pos1[1] - other_pos[1])
+        return distance
+
+    def choose_move(self, legal_moves: list[tuple], other_pos: tuple) -> tuple:
+        chosen_move = min(legal_moves, key=lambda move: self._manhattan(move, other_pos))
+        return chosen_move
 
 # Grid dimensions
 ROWS = 10
@@ -33,6 +66,10 @@ for wall in walls:
 
 grid[1][1] = 2 # pursuer
 grid[8][8] = 3 # evader
+
+# Agent class
+# Attributes: position, speed
+# methods: choose_move()
 
 # Colours
 colours = ["white","#203354","red","green"]
