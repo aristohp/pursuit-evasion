@@ -31,17 +31,50 @@ class Grid:
     
 
 class Agent:
-    def __init__(self, position: tuple, speed: int):
+    def __init__(self, position: tuple, speed: int, role: str) -> None:
         self.position = position
         self.speed = speed
+        self.role = role.lower()
+
     
-    def _manhattan(self, pos1: tuple, other_pos: tuple):
+    def _manhattan(self, pos1: tuple, other_pos: tuple) -> int:
         distance = abs(pos1[0] - other_pos[0]) + abs(pos1[1] - other_pos[1])
         return distance
 
     def choose_move(self, legal_moves: list[tuple], other_pos: tuple) -> tuple:
-        chosen_move = min(legal_moves, key=lambda move: self._manhattan(move, other_pos))
+        if self.role == 'pursuer':
+            chosen_move = min(legal_moves, key=lambda move: self._manhattan(move, other_pos))
+        else:
+            chosen_move = max(legal_moves, key=lambda move: self._manhattan(move, other_pos))
         return chosen_move
+
+
+class Game:
+    def __init__(self, grid: Grid, pursuer: Agent, evader: Agent) -> None:
+        self._grid = grid
+        self.pursuer = pursuer
+        self.evader = evader
+
+    def is_caught(self) -> bool:
+        return self.pursuer.position == self.evader.position
+    
+    def run(self) -> None:
+        max_turns = 1000
+        turn = 0
+        while not self.is_caught() and turn < max_turns:
+            pursuer_position = self.pursuer.position
+            evader_position = self.evader.position
+
+            # Check legal moves of pursuer and evader
+            pursuer_legal = self._grid.get_legal_move(pursuer_position)
+            evader_legal = self._grid.get_legal_move(evader_position)
+
+            self.pursuer.position = self.pursuer.choose_move(pursuer_legal, evader_position)
+            self.evader.position = self.evader.choose_move(evader_legal, pursuer_position)
+
+            turn += 1
+        return (self.is_caught(), turn)
+    
 
 # Grid dimensions
 ROWS = 10
@@ -67,9 +100,6 @@ for wall in walls:
 grid[1][1] = 2 # pursuer
 grid[8][8] = 3 # evader
 
-# Agent class
-# Attributes: position, speed
-# methods: choose_move()
 
 # Colours
 colours = ["white","#203354","red","green"]
@@ -90,3 +120,10 @@ ax.set_yticks([])
 ax.set_title("Pursuit-Evasion Grid")
 
 plt.show()
+
+if __name__ == "__main__":
+    grid = Grid(ROWS, COLUMNS, walls)
+    pursuer = Agent((1,1), 1, "pursuer")
+    evader = Agent((8,8), 1, "evader")
+    game = Game(grid, pursuer, evader)
+    print(game.run())
