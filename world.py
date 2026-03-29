@@ -31,21 +31,21 @@ class Grid:
         return legal_move
     
     def bfs(self, start: tuple, goal: tuple) -> int:
-        queue = deque[(start, 0)]
+        queue = deque([(start, 0)])
         visited_cells = {start}
         while queue:
             position, distance = queue.popleft()
             if position == goal:
                 return distance
-            for neighbor in self.get_legal_move(start):
+            for neighbor in self.get_legal_move(position):
                 if neighbor not in visited_cells:
                     visited_cells.add(neighbor)
-                    distance += 1
+                    neighbor_distance = distance + 1
+                    queue.append((neighbor, neighbor_distance))
         return float('inf')
     
 
 class Agent:
-
     def __init__(self, position: tuple, speed: int, role: str) -> None:
         self.position = position
         self.speed = speed
@@ -55,9 +55,9 @@ class Agent:
         distance = abs(pos1[0] - other_pos[0]) + abs(pos1[1] - other_pos[1])
         return distance
 
-    def choose_move(self, legal_moves: list[tuple], other_pos: tuple) -> tuple:
+    def choose_move(self, legal_moves: list[tuple], other_pos: tuple, grid: Grid) -> tuple:
         if self._role == 'pursuer':
-            chosen_move = min(legal_moves, key=lambda move: self._manhattan(move, other_pos))
+            chosen_move = min(legal_moves, key=lambda move: grid.bfs(move, other_pos))
         else:
             chosen_move = max(legal_moves, key=lambda move: self._manhattan(move, other_pos))
         return chosen_move
@@ -83,8 +83,8 @@ class Game:
             pursuer_legal = self._grid.get_legal_move(pursuer_position)
             evader_legal = self._grid.get_legal_move(evader_position)
 
-            self.pursuer.position = self.pursuer.choose_move(pursuer_legal, evader_position)
-            self.evader.position = self.evader.choose_move(evader_legal, pursuer_position)
+            self.pursuer.position = self.pursuer.choose_move(pursuer_legal, evader_position, self._grid)
+            self.evader.position = self.evader.choose_move(evader_legal, pursuer_position, self._grid)
 
             turn += 1
         return (self.is_caught(), turn)
