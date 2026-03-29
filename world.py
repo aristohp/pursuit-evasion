@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.colors
 import random as r
+from collections import deque
 
 class Grid:
     def __init__(self, rows: int, cols: int, walls: list[tuple]) -> None:
@@ -29,20 +30,33 @@ class Grid:
                     
         return legal_move
     
+    def bfs(self, start: tuple, goal: tuple) -> int:
+        queue = deque[(start, 0)]
+        visited_cells = {start}
+        while queue:
+            position, distance = queue.popleft()
+            if position == goal:
+                return distance
+            for neighbor in self.get_legal_move(start):
+                if neighbor not in visited_cells:
+                    visited_cells.add(neighbor)
+                    distance += 1
+        return float('inf')
+    
 
 class Agent:
+
     def __init__(self, position: tuple, speed: int, role: str) -> None:
         self.position = position
         self.speed = speed
-        self.role = role.lower()
+        self._role = role.lower()
 
-    
     def _manhattan(self, pos1: tuple, other_pos: tuple) -> int:
         distance = abs(pos1[0] - other_pos[0]) + abs(pos1[1] - other_pos[1])
         return distance
 
     def choose_move(self, legal_moves: list[tuple], other_pos: tuple) -> tuple:
-        if self.role == 'pursuer':
+        if self._role == 'pursuer':
             chosen_move = min(legal_moves, key=lambda move: self._manhattan(move, other_pos))
         else:
             chosen_move = max(legal_moves, key=lambda move: self._manhattan(move, other_pos))
@@ -124,6 +138,7 @@ plt.show()
 if __name__ == "__main__":
     grid = Grid(ROWS, COLUMNS, walls)
     pursuer = Agent((1,1), 1, "pursuer")
-    evader = Agent((8,8), 1, "evader")
+    evader = Agent((4,4), 1, "evader")
     game = Game(grid, pursuer, evader)
     print(game.run())
+    
