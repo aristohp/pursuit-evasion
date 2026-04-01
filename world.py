@@ -44,6 +44,9 @@ class Grid:
                     queue.append((neighbor, neighbor_distance))
         return float('inf')
     
+    def is_connected(self, pos1: tuple, pos2: tuple) -> bool:
+        return self.bfs(pos1, pos2) != float('inf')
+    
 
 class Agent:
     def __init__(self, position: tuple, speed: int, role: str) -> None:
@@ -72,7 +75,9 @@ class Game:
     def is_caught(self) -> bool:
         return self.pursuer.position == self.evader.position
     
-    def run(self) -> None:
+    def run(self) -> tuple:
+        if not self._grid.is_connected(self.pursuer.position, self.evader.position):
+            return (False, 'Never ran')
         max_turns = 1000
         turn = 0
         while not self.is_caught() and turn < max_turns:
