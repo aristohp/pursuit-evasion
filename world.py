@@ -62,7 +62,8 @@ class Agent:
         if self._role == 'pursuer':
             chosen_move = min(legal_moves, key=lambda move: grid.bfs(move, other_pos))
         else:
-            chosen_move = max(legal_moves, key=lambda move: self._manhattan(move, other_pos))
+            chosen_move = max(legal_moves, key=lambda move: (self._manhattan(move, other_pos),
+                                                              len(grid.get_legal_move(move))))
         return chosen_move
 
 
@@ -117,7 +118,7 @@ for wall in walls:
     grid[row][col] = 1
 
 grid[1][1] = 2 # pursuer
-grid[8][8] = 3 # evader
+grid[4][4] = 3 # evader
 
 
 # Colours
@@ -138,12 +139,13 @@ ax.set_xticks([])
 ax.set_yticks([])
 ax.set_title("Pursuit-Evasion Grid")
 
-plt.show()
+# plt.show()
 
 if __name__ == "__main__":
     grid = Grid(ROWS, COLUMNS, walls)
     pursuer = Agent((1,1), 1, "pursuer")
-    evader = Agent((4,4), 1, "evader")
+    evader = Agent((8,8), 1, "evader")
     game = Game(grid, pursuer, evader)
+    # print(grid.is_connected((1,1), (4,4)))
+    # print(grid.bfs((1,1), (4,4)))
     print(game.run())
-    
